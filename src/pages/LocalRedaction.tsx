@@ -112,11 +112,10 @@ export default function LocalRedaction() {
         {STEPS.map((s, i) => (
           <div key={s.key} className="flex items-center gap-2">
             <div
-              className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${
-                i <= currentStepIndex
+              className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${i <= currentStepIndex
                   ? "bg-primary text-primary-foreground"
                   : "bg-muted text-muted-foreground"
-              }`}
+                }`}
             >
               {i + 1}
             </div>

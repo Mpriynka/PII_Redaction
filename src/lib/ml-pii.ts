@@ -135,7 +135,8 @@ export async function loadModel(
 
       // Use relative path to avoid "remote" issues - this will be resolved relative to current origin
       // Note: transformers.js pipeline takes the model path string.
-      const modelPath = "/models/pii-model";
+      const baseUrl = import.meta.env.BASE_URL || "/";
+      const modelPath = `${baseUrl}models/pii-model`.replace("//", "/");
 
       // Load using pipeline directly - simpler and handles tokenizer+model together
       onProgress?.({ status: "Loading model & tokenizer...", progress: 10 });
