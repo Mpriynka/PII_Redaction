@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Shield, Server, MessageSquare, Settings, Menu, X, ShieldCheck } from "lucide-react";
+import { Home, Shield, Chrome, Settings, Menu, X, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 const NAV_ITEMS = [
   { path: "/", label: "Home", icon: Home },
   { path: "/local", label: "Local Redaction", icon: Shield },
-  { path: "/server", label: "Server Redaction", icon: Server },
-  { path: "/llm", label: "LLM Wrapper", icon: MessageSquare },
+  { path: "/extension", label: "Browser Extension", icon: Chrome },
   { path: "/settings", label: "Settings", icon: Settings },
 ];
 

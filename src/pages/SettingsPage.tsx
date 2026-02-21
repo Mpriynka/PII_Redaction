@@ -43,33 +43,6 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">LLM Connection</CardTitle>
-          <CardDescription>Manage your saved LLM connection settings</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {localStorage.getItem("llm-connection") ? (
-            <div className="space-y-2">
-              <p className="text-sm">
-                Connected to: <strong>{JSON.parse(localStorage.getItem("llm-connection")!).type}</strong>
-              </p>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => {
-                  localStorage.removeItem("llm-connection");
-                  window.location.reload();
-                }}
-              >
-                Remove Connection
-              </Button>
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">No LLM connection configured.</p>
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 }

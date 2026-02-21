@@ -6,8 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppShell } from "@/components/AppShell";
 import Index from "./pages/Index";
 import LocalRedaction from "./pages/LocalRedaction";
-import ServerRedaction from "./pages/ServerRedaction";
-import LLMWrapper from "./pages/LLMWrapper";
+import BrowserExtension from "./pages/Extension";
 import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
 
@@ -23,8 +22,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/local" element={<LocalRedaction />} />
-            <Route path="/server" element={<ServerRedaction />} />
-            <Route path="/llm" element={<LLMWrapper />} />
+            <Route path="/extension" element={<BrowserExtension />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
