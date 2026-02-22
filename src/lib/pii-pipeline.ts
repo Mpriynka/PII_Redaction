@@ -38,36 +38,41 @@ function mergeResults(
   regexMatches: RegexMatch[],
   mlMatches: MLMatch[]
 ): Array<{ type: PIIType; text: string; start: number; end: number; source: "regex" | "ml" }> {
-  const merged: Array<{ type: PIIType; text: string; start: number; end: number; source: "regex" | "ml" }> = [];
+  const allMatches: Array<{ type: PIIType; text: string; start: number; end: number; source: "regex" | "ml" }> = [];
 
-  // Start with all ML matches
-  for (const m of mlMatches) {
-    if (isNaN(m.start) || isNaN(m.end)) continue;
-    merged.push({ type: m.type, text: m.text, start: m.start, end: m.end, source: "ml" });
-  }
-
-  // Add regex matches that don't overlap with any ML match
   for (const r of regexMatches) {
     if (isNaN(r.start) || isNaN(r.end)) continue;
-    const hasOverlap = merged.some((m) => overlaps(r, m));
+    allMatches.push({ type: r.type, text: r.text, start: r.start, end: r.end, source: "regex" });
+  }
+
+  for (const m of mlMatches) {
+    if (isNaN(m.start) || isNaN(m.end)) continue;
+    allMatches.push({ type: m.type, text: m.text, start: m.start, end: m.end, source: "ml" });
+  }
+
+  // Sort primarily by length (descending) to greedily take the longest match
+  allMatches.sort((a, b) => {
+    const lenA = a.end - a.start;
+    const lenB = b.end - b.start;
+    if (lenA === lenB) {
+      // If lengths are equal, prefer regex
+      if (a.source === "regex" && b.source !== "regex") return -1;
+      if (b.source === "regex" && a.source !== "regex") return 1;
+      return a.start - b.start;
+    }
+    return lenB - lenA;
+  });
+
+  const finalMerged: typeof allMatches = [];
+  for (const m of allMatches) {
+    const hasOverlap = finalMerged.some((f) => overlaps(f, m));
     if (!hasOverlap) {
-      merged.push({ type: r.type, text: r.text, start: r.start, end: r.end, source: "regex" });
-    }
-  }
-
-  // Sort by start index
-  merged.sort((a, b) => a.start - b.start);
-
-  // Secondary pass: absolutely guarantee no overlaps slip through (keeps earlier span)
-  const finalMerged = [];
-  let lastEnd = -1;
-  for (const m of merged) {
-    if (m.start >= lastEnd) {
       finalMerged.push(m);
-      lastEnd = m.end;
     }
   }
 
+  // Finally, put them back into chronological start order
+  finalMerged.sort((a, b) => a.start - b.start);
   return finalMerged;
 }
 
@@ -99,6 +104,8 @@ export async function runPipeline(text: string): Promise<PipelineResult> {
     try {
       mlMatches = await detectWithModel(text);
       console.log("ML Matches:", mlMatches);
+      console.log("Regex Matches:", regexMatches);
+      console.log("Merged Matches:", mergeResults(regexMatches, mlMatches));
     } catch (err) {
       console.warn("ML model inference failed, falling back to regex-only:", err);
     }

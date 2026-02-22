@@ -22,10 +22,19 @@ const PATTERNS: { type: PIIType; pattern: RegExp; confidence: number }[] = [
   { type: "phone", pattern: /(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b/g, confidence: 0.9 },
   // Credit card (basic: 13-19 digit groups)
   { type: "financial", pattern: /\b(?:\d[ -]*?){13,19}\b/g, confidence: 0.7 },
-  // IP address (v4)
-  { type: "id", pattern: /\b(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\b/g, confidence: 0.9 },
   // Date patterns (MM/DD/YYYY, YYYY-MM-DD, Month DD, YYYY)
   { type: "date", pattern: /\b(?:\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}|\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}|(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},?\s*\d{4})\b/gi, confidence: 0.85 },
+  // URL
+  { type: "id", pattern: /\b(?:https?:\/\/|www\.)[\w\-]+\.[\w\-.~:/?#[\]@!$&'()*+,;=]+(?:\b|$)/gi, confidence: 0.85 },
+  // MAC address
+  { type: "id", pattern: /\b(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}\b/g, confidence: 0.9 },
+  // UUID
+  { type: "id", pattern: /\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi, confidence: 0.9 },
+  // IPv6 address
+  { type: "id", pattern: /\[([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\]/g, confidence: 0.9 },
+  // IPv4 address
+  { type: "id", pattern: /\b(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\b/g, confidence: 0.9 },
+
 ];
 
 export function detectWithRegex(text: string): RegexMatch[] {

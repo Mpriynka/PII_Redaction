@@ -25,93 +25,6 @@ export function isModelLoaded(): boolean {
   return classifier !== null;
 }
 
-/**
- * Map model NER labels (without B-/I- prefix) to our PIIType categories.
- * Adjust this mapping based on your labels.json content.
- */
-const LABEL_TO_PII_TYPE: Record<string, PIIType> = {
-  // Names
-  FIRSTNAME: "name",
-  LASTNAME: "name",
-  MIDDLENAME: "name",
-  GIVENNAME: "name",
-  GIVENNAME1: "name",
-  GIVENNAME2: "name",
-  LASTNAME1: "name",
-  LASTNAME2: "name",
-  LASTNAME3: "name",
-  PREFIX: "name",
-  USERNAME: "id", // Or name
-  NAME: "name",
-
-  // Email
-  EMAIL: "email",
-
-  // Phone
-  PHONE_NUM: "phone",
-  PHONE: "phone",
-  TEL: "phone",
-
-  // SSN
-  SSN: "ssn",
-  SOCIALNUMBER: "ssn",
-
-  // Address
-  STREETADDRESS: "address",
-  STREET: "address",
-  CITY: "address",
-  STATE: "address",
-  ZIPCODE: "address",
-  POSTCODE: "address",
-  COUNTY: "address",
-  BUILDINGNAME: "address",
-  BUILDING: "address",
-  SECONDARYADDRESS: "address",
-  SECADDRESS: "address",
-  NEARBYGPSCOORDINATE: "address",
-  GEOCOORD: "address",
-  ADDRESS: "address",
-  COUNTRY: "address",
-
-  // Date
-  DATE: "date",
-  DOB: "date",
-  BOD: "date",
-  TIME: "date",
-
-  // Financial
-  CREDITCARDNUMBER: "financial",
-  CREDITCARDCVV: "financial",
-  CREDITCARDISSUER: "financial",
-  CARDISSUER: "financial",
-  IBAN: "financial",
-  ACCOUNTNUMBER: "financial",
-  ACCOUNTNAME: "financial",
-  BITCOINADDRESS: "financial",
-  PIN: "financial",
-
-  // ID / Other
-  DRIVERLICENSENUMBER: "id",
-  DRIVERLICENSE: "id",
-  VEHICLEIDENTIFICATIONNUMBER: "id",
-  VEHICLEREGISTRATIONNUMBER: "id",
-  IPV4: "id",
-  IPV6: "id",
-  IP: "id",
-  PASSWORD: "id",
-  PASS: "id",
-  PASSPORT: "id",
-  IDCARD: "id",
-  URL: "id",
-  COMPANYNAME: "id",
-  JOBTITLE: "id",
-  TITLE: "id",
-  JOBAREA: "id",
-  AGE: "id",
-  GENDER: "id",
-  SEX: "id",
-  ID: "id",
-};
 
 export type ModelLoadProgress = {
   status: string;
@@ -241,22 +154,15 @@ async function detectChunk(textChunk: string, chunkOffset: number): Promise<MLMa
       return null;
     }
 
-    // Strip B- and I- prefixes before matching against our mappings
+    // Our model now only returns generic "PII" via B-PII / I-PII !
     let normalizedLabel = label.toUpperCase();
     if (normalizedLabel.startsWith("B-") || normalizedLabel.startsWith("I-")) {
       normalizedLabel = normalizedLabel.substring(2);
     }
-    const labelName = normalizedLabel.replace(/[^A-Z]/g, "");
-
-    // First try the normalized label name without non-alpha chars (e.g. STREETADDRESS)
-    // Then try the raw stripped label (e.g. STREET_ADDRESS)
-    // Then try the original raw label directly just in case
-    const type = LABEL_TO_PII_TYPE[labelName] || LABEL_TO_PII_TYPE[normalizedLabel] || LABEL_TO_PII_TYPE[label];
-
-    if (!type) {
-      console.warn("Unknown label skipped:", label, "-> normalized:", labelName);
-      return null;
-    }
+    
+    // Anything the model caught is PII. We'll generically assign it as "id" 
+    // to satisfy the UI PIIType, or we assume the app treats it as general redaciton
+    const type: PIIType = "id";
 
     let start = r.start;
     let end = r.end;
